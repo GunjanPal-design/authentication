@@ -167,15 +167,11 @@ const verifyEmail = async (req, res) => {
 
 const getUser = async (req, res) => {
   try {
-    const authHeader = req.headers["authorization"];
-    console.log(authHeader);
-    const [token] = authHeader.split(" ");
-
     //Decode the token
-    const decoded = jwt.verify(token, secretKey);
+    const userId = req.user._id;
 
     //Find the user by id
-    const user = await userModel.findById(decoded._id);
+    const user = await userModel.findById(userId);
     if (!user) {
       return res.status(400).json("user not found");
     } else {
