@@ -74,7 +74,11 @@ const Login = async (req, res) => {
     if (!token) {
       return res.json({ message: "invalid credentials" });
     }
-    res.status(201).json("user logged in successfully");
+    res.status(200).json({
+      status: "200",
+      message: "user logged in successfully",
+      token: token,
+    });
   } catch (err) {
     res.status(400).json(err);
     console.log(err);
@@ -107,12 +111,9 @@ const forgetPassword = async (req, res) => {
 //Reset Your Password
 const resetPassword = async (req, res) => {
   try {
-   
     const { token } = req.params;
     console.log(token);
-    
-    console.log(token);
-    
+
     const { password } = req.body;
 
     if (!password) {
@@ -126,14 +127,12 @@ const resetPassword = async (req, res) => {
     const user = await userModel.findById(decode._id);
 
     //Secure the password
-     user.password = await bcrypt.hash(password, 10);
- 
+    user.password = await bcrypt.hash(password, 10);
+
     await user.save();
     return res.status(200).send({ message: "password reset successfully" });
   } catch (err) {
     console.log(err);
-   
-    
 
     res.status(400).json({ error: err.message });
   }
@@ -166,10 +165,32 @@ const verifyEmail = async (req, res) => {
   }
 };
 
+const getUser = async (req, res) => {
+  try {
+    const authHeader = req.headers["authorization"];
+    console.log(authHeader);
+    const [token] = authHeader.split(" ");
+
+    //Decode the token
+    const decoded = jwt.verify(token, secretKey);
+
+    //Find the user by id
+    const user = await userModel.findById(decoded._id);
+    if (!user) {
+      return res.status(400).json("user not found");
+    } else {
+      return res.status(200).json({ status: "200", data: user });
+    }
+  } catch (err) {
+    res.status(500).json({ error: "invalid token", details: err.message });
+  }
+};
+
 module.exports = {
   register,
   verifyEmail,
   Login,
   forgetPassword,
   resetPassword,
+  getUser,
 };
