@@ -6,7 +6,7 @@ const authMiddleware = (req, res, next) => {
   if (!token) {
     return res.status(401).json({ status: "401", message: "Access denied" });
   }
-  console.log(token, "tpken");
+  console.log(token, "token");
   jwt.verify(token, secretKey, (err, user) => {
     if (err) {
       return res.status(400).json({ status: "401", error: "invalid token" });

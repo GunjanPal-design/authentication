@@ -97,6 +97,7 @@ const forgetPassword = async (req, res) => {
 
     //Generate a token
     const token = generateToken(user);
+    console.log(token);
 
     await sendEmail(user.email, token);
 
@@ -182,6 +183,73 @@ const getUser = async (req, res) => {
   }
 };
 
+//update
+const updateUser = async (req, res) => {
+  try {
+    const id = req.user._id;
+    const { f_name, l_name, email, password, role } = req.body;
+    console.log("req.body", req.body);
+
+    const user = await userModel.findById(id);
+    if (!user) {
+      return res.status(400).json({ error: "User not found" });
+    }
+    const updatedUser = await userModel.findByIdAndUpdate(id, {
+      f_name,
+      l_name,
+      email,
+      password,
+      role,
+    });
+    if (!updatedUser) {
+      return res.status(400).json({ error: "User not found" });
+    }
+    res.status(200).json({
+      status: "200",
+      message: "User updated successfully",
+      data: updatedUser,
+    });
+  } catch (err) {
+    console.log(err);
+
+    res
+      .status(500)
+      .json({ error: "Something went wrong", details: err.message });
+  }
+};
+
+//Delete user
+const deleteUser = async (req, res) =>
+{
+  try {
+    const id = req.user._id;
+    const { f_name, l_name, role, email, password } = req.body
+    console.log("req.body", req.body)
+    const user = await userModel.findById(id)
+    if (!user) {
+        return res.status(400).json({ error: "User not found" });
+      
+    }
+    const deleteUser = await userModel.findByIdAndDelete(id, { f_name, l_name, email, password, role });
+    if (!deleteUser) {
+       return res.status(400).json({ error: "User not found" });
+      
+    }
+     res.status(200).json({
+      status: "200",
+      message: "User deleted successfully",
+      data: deleteUser,
+    });
+  } catch (err) {
+    console.log(err);
+
+    res
+      .status(500)
+      .json({ error: "Something went wrong", details: err.message });
+  }
+  }
+
+
 module.exports = {
   register,
   verifyEmail,
@@ -189,4 +257,6 @@ module.exports = {
   forgetPassword,
   resetPassword,
   getUser,
+  updateUser,
+  deleteUser,
 };
